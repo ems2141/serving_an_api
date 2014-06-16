@@ -121,5 +121,29 @@ describe "Cars API" do
       expect(response.code.to_i).to eq(201)
       expect(JSON.parse(response.body)).to eq(expected_response)
     end
+
+    it 'returns 404 error if User does not have valid API token' do
+      create_user
+
+      ford = create_make(name: "Ford")
+
+      headers = {
+          'Accept' => 'application/json',
+      }
+
+      posted_data = {
+          "make_id" => ford.id,
+          "color" => 'blue',
+          "doors" => 2,
+          "purchased_on" => "2012-01-24"
+      }.to_json
+
+      expect { post '/cars', posted_data, headers }.to change { Car.count }.by(0)
+
+      expected_response = {}
+
+      expect(response.code.to_i).to eq(401)
+      expect(JSON.parse(response.body)).to eq(expected_response)
+    end
   end
 end
